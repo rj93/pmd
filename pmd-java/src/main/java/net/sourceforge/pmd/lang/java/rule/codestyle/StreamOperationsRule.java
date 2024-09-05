@@ -17,22 +17,10 @@ import net.sourceforge.pmd.lang.java.types.OverloadSelectionResult;
 import net.sourceforge.pmd.lang.java.types.TypeTestUtil;
 import net.sourceforge.pmd.lang.rule.RuleTargetSelector;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.BaseStream;
 
 public class StreamOperationsRule extends AbstractJavaRule {
-
-    // TODO get stream methods
-    private static final Set<String> STREAM_METHOD_NAMES = new HashSet<>(Arrays.asList(
-            "stream",
-            "flatMap",
-            "map",
-            "collect"
-    ));
 
     @Override
     protected @NonNull RuleTargetSelector buildTargetSelector() {
@@ -66,8 +54,8 @@ public class StreamOperationsRule extends AbstractJavaRule {
         }
     }
 
-    private boolean isStreamAndUsesStreamMethod(@Nullable ASTMethodCall call) {
-        return STREAM_METHOD_NAMES.contains(call.getMethodName())
+    private boolean isStreamAndUsesStreamMethod(ASTMethodCall call) {
+        return call.getNumChildren() > 0
                 && isStreamReturnType(call.getChild(0)) // TODO what if empty?
                 && checkLines(call);
     }
@@ -94,10 +82,7 @@ public class StreamOperationsRule extends AbstractJavaRule {
     }
 
     private static boolean checkSiblings(JavaNode previousSibling, JavaNode currentSibling) {
-        if (previousSibling != null && currentSibling.getBeginLine() <= previousSibling.getEndLine()) {
-            return true;
-        }
-        return false;
+        return previousSibling != null && currentSibling.getBeginLine() <= previousSibling.getEndLine();
     }
 
     private boolean isStreamReturnType(JavaNode node) {

@@ -75,14 +75,27 @@ public class StreamOperationsRule extends AbstractJavaRule {
     // TODO source operation on new lines property - enabled, disabled, ignored
     // TODO empty lines property - boolean
     private boolean checkLines(JavaNode node) {
+        if (node == null || node.getNumChildren() == 0) {
+            return false;
+        }
+
         int numChildren = node.getNumChildren();
-        JavaNode previousSibling = node.getChild(0); // TODO What if empty?
-        for (int i = 1; i < numChildren; i++) {
+        JavaNode previousSibling = null;
+        for (int i = 0; i < numChildren; i++) {
             JavaNode currentSibling = node.getChild(i);
-            if (currentSibling.getBeginLine() <= previousSibling.getEndLine()) {
-                return true;
+            if (currentSibling instanceof ASTMethodCall || previousSibling instanceof ASTMethodCall) {
+                if (checkSiblings(previousSibling, currentSibling) || checkLines(currentSibling)) {
+                    return true;
+                }
             }
             previousSibling = currentSibling;
+        }
+        return false;
+    }
+
+    private static boolean checkSiblings(JavaNode previousSibling, JavaNode currentSibling) {
+        if (previousSibling != null && currentSibling.getBeginLine() <= previousSibling.getEndLine()) {
+            return true;
         }
         return false;
     }

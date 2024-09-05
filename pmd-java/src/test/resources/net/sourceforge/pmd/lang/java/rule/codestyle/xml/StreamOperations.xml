@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test-data
+        xmlns="http://pmd.sourceforge.net/rule-tests"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://pmd.sourceforge.net/rule-tests http://pmd.sourceforge.net/rule-tests_1_0_0.xsd">
+
+    <test-code>
+        <description>ASTExpressionStatement, single intermediate operation, ok</description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Foo {
+    public void bar() {
+        List<String> strings = List.of("hello", "world");
+        strings
+            .stream()
+            .map(String::toUpperCase)
+            .collect(Collectors.toList());
+    }
+}
+        ]]></code>
+    </test-code>
+
+    <test-code>
+        <description>ASTLocalVariableDeclaration, single intermediate operation, ok</description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+public class Foo {
+    public void bar() {
+        List<String> strings = IntStream.of(1, 2, 3)
+            .mapToObj(i -> "" + i)
+            .collect(Collectors.toList());
+    }
+}
+        ]]></code>
+    </test-code>
+
+    <test-code>
+        <description>ASTExpressionStatement, lambda spanning multiple lines, ok</description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Foo {
+    public void bar() {
+        List<String> strings = List.of("hello", "world");
+        strings
+            .stream()
+            .map(s -> s
+                + "test")
+            .collect(Collectors.toList());
+    }
+}
+        ]]></code>
+    </test-code>
+
+    <test-code>
+        <description>ASTLocalVariableDeclaration, lambda spanning multiple lines, ok</description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+public class Foo {
+    public void bar() {
+        List<String> strings = IntStream.of(1, 2, 3)
+            .mapToObj(i -> ""
+                + i)
+            .collect(Collectors.toList());
+    }
+}
+        ]]></code>
+    </test-code>
+    
+    <test-code>
+        <description>ASTExpressionStatement, not ok</description>
+        <expected-problems>1</expected-problems>
+        <expected-linenumbers>7</expected-linenumbers>
+        <code><![CDATA[
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Foo {
+    public void bar() {
+        List<String> strings = List.of("hello", "world");
+        strings.stream().map(String::toUpperCase).collect(Collectors.toList());
+    }
+}
+        ]]></code>
+    </test-code>
+
+    <test-code>
+        <description>ASTLocalVariableDeclaration, not ok</description>
+        <expected-problems>1</expected-problems>
+        <expected-linenumbers>7</expected-linenumbers>
+        <code><![CDATA[
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+public class Foo {
+    public void bar() {
+        List<String> strings = IntStream.of(1, 2, 3).mapToObj(i -> "" + i).collect(Collectors.toList());
+    }
+}
+        ]]></code>
+    </test-code>
+</test-data>

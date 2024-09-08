@@ -131,6 +131,58 @@ public class Foo {
     </test-code>
 
     <test-code>
+        <description>ASTLocalVariableDeclaration, multiple intermediate operations, empty lines, not ok</description>
+        <rule-property name="enforceNoEmptyLines">true</rule-property>
+        <expected-problems>1</expected-problems>
+        <expected-linenumbers>7</expected-linenumbers>
+        <code><![CDATA[
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Foo {
+    public void bar() {
+        List<String> strings = List.of("hello", "world");
+        strings
+            .stream()
+
+            .map(String::toUpperCase)
+
+            .filter(s -> s.contains("HELLO"))
+
+            .map(s -> " world")
+
+            .collect(Collectors.toList());
+    }
+}
+        ]]></code>
+    </test-code>
+
+    <test-code>
+        <description>ASTLocalVariableDeclaration, multiple intermediate operations, empty lines with enforceNoEmptyLines enabled, not ok</description>
+        <rule-property name="enforceNoEmptyLines">true</rule-property>
+        <expected-problems>1</expected-problems>
+        <expected-linenumbers>7</expected-linenumbers>
+        <code><![CDATA[
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+public class Foo {
+    public void bar() {
+        List<String> strings = IntStream.of(1, 2, 3)
+            .mapToObj(i -> "" + i)
+
+            .filter(s -> s.contains("1"))
+
+            .map(s -> " test")
+
+            .collect(Collectors.toList());
+    }
+}
+        ]]></code>
+    </test-code>
+
+    <test-code>
         <description>ASTExpressionStatement, lambda spanning multiple lines, ok</description>
         <expected-problems>0</expected-problems>
         <code><![CDATA[
@@ -152,6 +204,47 @@ public class Foo {
 
     <test-code>
         <description>ASTLocalVariableDeclaration, lambda spanning multiple lines, ok</description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+public class Foo {
+    public void bar() {
+        List<String> strings = IntStream.of(1, 2, 3)
+            .mapToObj(i -> ""
+                + i)
+            .collect(Collectors.toList());
+    }
+}
+        ]]></code>
+    </test-code>
+
+    <test-code>
+        <description>ASTExpressionStatement, lambda spanning multiple lines, enforceNoEmptyLines enabled, ok</description>
+        <rule-property name="enforceNoEmptyLines">true</rule-property>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Foo {
+    public void bar() {
+        List<String> strings = List.of("hello", "world");
+        strings
+            .stream()
+            .map(s -> s
+                + " test")
+            .collect(Collectors.toList());
+    }
+}
+        ]]></code>
+    </test-code>
+
+    <test-code>
+        <description>ASTLocalVariableDeclaration, lambda spanning multiple lines, enforceNoEmptyLines enabled, ok</description>
+        <rule-property name="enforceNoEmptyLines">true</rule-property>
         <expected-problems>0</expected-problems>
         <code><![CDATA[
 import java.util.List;
